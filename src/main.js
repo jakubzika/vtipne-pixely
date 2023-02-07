@@ -5,16 +5,16 @@ import {
   getOrthographicProjection,
   getPerspectiveProjection,
   getViewport,
-} from './transformations/transforms';
-import { combineTransforms as combineTransformations } from './transformations/base';
+} from './lib/transformations/transforms';
+import { combineTransforms as combineTransformations } from './lib/transformations/base';
 import { WIDTH, HEIGHT } from './const';
-import { drawBlurred, gridSketch } from './shape';
-import { testColors } from './color';
+import { testColors } from './lib/color';
+
+import sketch01 from './sketches/01';
+// import sketch02 from './sketches/01';
 
 let sliderA, sliderB, sliderC, sliderR;
-let grid;
 
-const cameraToClip = getPerspectiveProjection();
 const orthoCameraToClip = getOrthographicProjection();
 const worldToCamera = getCamera([-10, -10, -10], [0, 0, 0], [0, 1, 0]);
 const clipToScreen = getViewport();
@@ -43,6 +43,7 @@ const initialState = {
 };
 
 let state;
+let currentSketch;
 
 const updateState = (oldState = initialState) => ({
   ...oldState,
@@ -62,29 +63,26 @@ const drawOnce = () => {
 sketch.setup = () => {
   createCanvas(WIDTH, HEIGHT);
   drawOnce();
+  {
+    sliderA = createSlider(-10, 10, 0, 0.1);
+    sliderA.position(10, HEIGHT + 10);
 
-  sliderA = createSlider(-10, 10, 0, 0.1);
-  sliderA.position(10, HEIGHT + 10);
+    sliderB = createSlider(-10, 10, 0, 0.1);
+    sliderB.position(10, HEIGHT + 40);
 
-  sliderB = createSlider(-10, 10, 0, 0.1);
-  sliderB.position(10, HEIGHT + 40);
+    sliderC = createSlider(-10, 10, 0, 0.1);
+    sliderC.position(10, HEIGHT + 70);
 
-  sliderC = createSlider(-10, 10, 0, 0.1);
-  sliderC.position(10, HEIGHT + 70);
-
-  sliderR = createSlider(-10, 10, -0.77, 0.1);
-  sliderR.position(10, HEIGHT + 100);
+    sliderR = createSlider(-10, 10, -0.77, 0.1);
+    sliderR.position(10, HEIGHT + 100);
+  }
 
   state = updateState();
-
-  grid = gridSketch(state);
-  // frameRate(5);
+  currentSketch = sketch01(state);
 };
 
 sketch.draw = () => {
   state = updateState(state);
-  background(245, 239, 237);
-  fill(255);
 
-  drawBlurred(grid, state, 24);
+  currentSketch(state);
 };

@@ -1,16 +1,6 @@
-import {
-  multiColorGradient,
-  oklab,
-  oklabRgb,
-  rgb,
-  rgbOklab,
-  srgb,
-} from '@thi.ng/color';
+import { oklab, rgb } from '@thi.ng/color';
 
-export const testColors = () => {
-  const grad = okLabGradient(rgb(255, 0, 0), rgb(0, 0, 255));
-  console.log(grad(0.5).buf);
-};
+export const testColors = () => {};
 
 /**
  *

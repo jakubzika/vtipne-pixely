@@ -1,5 +1,5 @@
 import { mat4, vec4, vec3, vec2, mat2, mat3, glMatrix } from 'gl-matrix';
-import { WIDTH, HEIGHT } from '../const';
+import { WIDTH, HEIGHT } from '../../const';
 import { combineTransforms, showMatrix, v3, v4, fmap } from './base';
 
 export const getCamera = (from, at, up) => {
