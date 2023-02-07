@@ -32,7 +32,7 @@ export const gridSketch = () => {
       combineTransformations(
         noiseTransform,
         objToWorld,
-        getRotate(v3(0, 1, 0), slider1),
+        getRotate(v3(0, 1, 0), -Math.PI / 4),
         transformations.worldToScreen
       )
     );
