@@ -9,9 +9,8 @@ import {
 import { combineTransforms as combineTransformations } from './lib/transformations/base';
 import { WIDTH, HEIGHT } from './const';
 import { testColors } from './lib/color';
-
-import sketch01 from './sketches/01';
-// import sketch02 from './sketches/01';
+import sketches from './sketches/index';
+import { isPromise } from './util';
 
 let sliderA, sliderB, sliderC, sliderR;
 
@@ -30,10 +29,9 @@ const initialState = {
   slider1: 0,
   time: 0,
   delta: 0,
-  // blur
   blurSteps: 0,
   blurStep: 0,
-  blur: 0,
+  blur: 1,
   // --
   transformations: {
     worldToClip,
@@ -60,14 +58,28 @@ const drawOnce = () => {
   testColors();
 };
 
-sketch.setup = () => {
+const parseSearch = (s) => {
+  s = s.slice(1).split('&');
+  const keyvals = s.map((x) => x.split('='));
+  const res = keyvals.reduce((res, [key, val]) => ({ ...res, [key]: val }), {});
+  return res;
+};
+
+// todo improve
+let setupPromiseResolve = undefined;
+const setupPromise = new Promise((res) => {
+  setupPromiseResolve = res;
+});
+
+sketch.setup = async () => {
   createCanvas(WIDTH, HEIGHT);
+
   drawOnce();
   {
-    sliderA = createSlider(-10, 10, 0, 0.1);
+    sliderA = createSlider(0, 100, 0, 1);
     sliderA.position(10, HEIGHT + 10);
 
-    sliderB = createSlider(-10, 10, 0, 0.1);
+    sliderB = createSlider(0, 100, 20, 1);
     sliderB.position(10, HEIGHT + 40);
 
     sliderC = createSlider(-10, 10, 0, 0.1);
@@ -78,11 +90,25 @@ sketch.setup = () => {
   }
 
   state = updateState();
-  currentSketch = sketch01(state);
+  const search = parseSearch(window.location.search);
+  if ('sketch' in search && search.sketch in sketches) {
+    currentSketch = sketches[search.sketch](state);
+    if (isPromise(currentSketch)) {
+      currentSketch = await currentSketch;
+    }
+  } else {
+    currentSketch = await sketches.sketch06(state);
+  }
+  setupPromiseResolve();
 };
 
-sketch.draw = () => {
+sketch.draw = async () => {
+  // await setupPromise;
   state = updateState(state);
-
+  // try {
   currentSketch(state);
+  // } catch (e) {
+  //   console.log('caught a nasty bug', e);
+  //   return;
+  // }
 };

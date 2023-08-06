@@ -1,7 +1,10 @@
 import { mat4, vec4, vec3, vec2, mat2, mat3, glMatrix } from 'gl-matrix';
-import { v4 } from './transformations/base';
+import { v4, v3 } from './transformations/base';
 
 export const uvToXZ = ([u, v]) => v4(u, 0, v);
+export const uvToXY = ([u, v]) => v4(u, v, 0);
+
+export const uvToV3 = ([u, v]) => v3(u, v);
 
 const gridMap = (grid, trans) => ({
   ...grid,

@@ -42,7 +42,7 @@ export const v4 = (x, y, z, w = 1) => vec4.fromValues(x, y, z, w);
  * @param {number} w
  * @returns
  */
-export const v3 = (x, y, w = 1) => vec4.fromValues(x, y, w);
+export const v3 = (x, y, w = 1) => vec3.fromValues(x, y, w);
 
 /**
  *

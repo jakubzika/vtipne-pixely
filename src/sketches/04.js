@@ -12,16 +12,18 @@ import {
   combineTransforms as combineTransformations,
 } from '../lib/transformations/base';
 import { getGrid } from '../lib/surfaces';
-import { okLabGradient, unpackColor } from '../lib/color';
-import { rgb } from '@thi.ng/color';
+import { okLabGradient, setFillColor, unpackColor } from '../lib/color';
+import { rgb, srgb } from '@thi.ng/color';
 import { drawBlurred } from '../shape';
+import crazy from '/img/img.png';
+import { promisify } from '../util';
 
 const getSimplex = (time, state) => {
   const seed = alea('seediesgs');
   const noise = createNoise2D(seed);
 
   return ([u, v]) => {
-    const t = time * 4 * 1e-4;
+    const t = time * 4 * 1e-4 + state.blur * 1;
     const uvFactor = 2;
     const h = noise(u * uvFactor, v * uvFactor + t) * 0.03;
     const h2 = noise(20 + u * uvFactor - t, v * uvFactor) * 0.04;
@@ -32,21 +34,18 @@ const getSimplex = (time, state) => {
       noise(20 + u + hifreqUVFactor, 20 + v * hifreqUVFactor + hifreqTime) *
       0.01;
 
-    // return v4(
-    //   u + 0.2 * noise(u + t * 0.8, v + t * 0.8),
-    //   2 * h,
-    //   v + 0.2 * noise(u + 20 + t * 0.8, -v * 0.8)
-    // );
     return v4(u, 2 * h + h2 + hifreqH, v);
   };
 };
 
-const gridSketch = () => {
-  const grid = getGrid(8, 100);
+const gridSketch = async () => {
+  const grid = getGrid(4, 1);
+
+  const img = await promisify((res, rej) => loadImage(crazy, res, rej));
 
   const objToWorld = combineTransformations(
     getTranslate(-0.5, 0.0, -0.5),
-    getScale(10, 10, 10)
+    getScale(7, 7, 7)
   );
 
   return (state) => {
@@ -59,7 +58,7 @@ const gridSketch = () => {
       combineTransformations(
         noiseTransform,
         objToWorld,
-        getRotate(v3(0, 1, 0), -Math.PI / 4),
+        getRotate(v3(0, 1, 0), state.time * 0.001 + blur * 1),
         transformations.worldToScreen
       )
     );
@@ -67,31 +66,36 @@ const gridSketch = () => {
     // const grad = okLabGradient(rgb(30, 100, 100), rgb(250, 192, 94));
     const grad = okLabGradient(rgb(250, 192, 94), rgb(250, 192, 94));
 
-    noFill();
-    strokeWeight(1);
+    // noFill();
+    // strokeWeight(1);
     worldGrid.points.forEach((row) => {
       const opacity = blur * 255;
 
-      stroke(...unpackColor(grad(blur)), opacity);
-      beginShape();
+      setFillColor(srgb(0, 0, 0));
       row.forEach(([x, y]) => {
-        vertex(x, y);
+        fill(100, 100, 200, opacity);
+        // ellipse(x, y, 6);
+        // tint(255, opacity);
+        image(img, x, y, 150, 150);
       });
       endShape();
     });
   };
 };
 
-const sketch01 = (state) => {
-  const grid = gridSketch(state);
-  // frameRate(0.5);
+const sketch04 = async (state) => {
+  const grid = await gridSketch(state);
+  const a = Math.round(Math.random() * 1e5);
 
+  background(40, 40, 100);
+  // grid(state);
+  // frameRate(10);
   return (state) => {
-    background(245, 239, 237);
-    fill(255);
+    background(40, 40, 100);
 
-    drawBlurred(grid, state, 24);
+    // grid(state);
+    drawBlurred(grid, state, 90);
   };
 };
 
-export default sketch01;
+export default sketch04;

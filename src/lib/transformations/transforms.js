@@ -50,22 +50,56 @@ export const getTranslate = (x, y, z) => {
   const translateM = mat4.fromTranslation(mat4.create(), [x, y, z]);
 
   return (p) => {
-    return vec4.transformMat4(vec4.create(), p, translateM);
+    return vec4.transformMat4(p, p, translateM);
   };
 };
 
 export const getScale = (x, y, z) => {
-  const translateM = mat4.fromScaling(mat4.create(), [x, y, z]);
+  const scaleM = mat4.fromScaling(mat4.create(), [x, y, z]);
 
   return (p) => {
-    return vec4.transformMat4(p, p, translateM);
+    return vec4.transformMat4(p, p, scaleM);
   };
 };
 
 export const getRotate = (axs, r) => {
-  const translateM = mat4.fromRotation(mat4.create(), r, axs);
+  const rotateM = mat4.fromRotation(mat4.create(), r, axs);
 
   return (p) => {
-    return vec4.transformMat4(p, p, translateM);
+    return vec4.transformMat4(p, p, rotateM);
   };
 };
+
+export const getRotate2 = (r) => {
+  const rotateM = mat3.fromRotation(mat3.create(), r);
+
+  return (p) => {
+    return vec3.transformMat3(p, p, rotateM);
+  };
+};
+
+export const getTranslate2 = (x, y) => {
+  const translateM = mat3.fromTranslation(mat3.create(), [x, y]);
+
+  return (p) => {
+    return vec3.transformMat3(p, p, translateM);
+  };
+};
+
+export const getScale2 = (x, y) => {
+  const scaleM = mat3.fromScaling(mat3.create(), [x, y]);
+
+  return (p) => {
+    return vec3.transformMat3(p, p, scaleM);
+  };
+};
+
+export const getRotateAround2 = ([x, y], r) => {
+  const resM = mat3.fromTranslation(mat3.create(), vec3.fromValues(x, y));
+  mat3.rotate(resM, resM, r);
+  mat3.translate(resM, resM, vec3.fromValues(-x, -y));
+  return (p) => vec3.transformMat3(p, p, resM);
+};
+
+export const copyV3 = () => (p) => vec3.copy(vec3.create(), p);
+export const copyV4 = () => (p) => vec4.copy(vec4.create(), p);
