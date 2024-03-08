@@ -91,6 +91,7 @@ sketch.setup = async () => {
 
   state = updateState();
   const search = parseSearch(window.location.search);
+  console.log(search)
   if ('sketch' in search && search.sketch in sketches) {
     currentSketch = sketches[search.sketch](state);
     if (isPromise(currentSketch)) {
@@ -105,10 +106,11 @@ sketch.setup = async () => {
 sketch.draw = async () => {
   // await setupPromise;
   state = updateState(state);
-  // try {
-  currentSketch(state);
-  // } catch (e) {
-  //   console.log('caught a nasty bug', e);
-  //   return;
-  // }
+  try {
+    currentSketch(state);
+  } catch (e) {
+    frameRate(0);
+    throw e;
+    // return;
+  }
 };

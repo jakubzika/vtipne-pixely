@@ -1,8 +1,7 @@
 import { oklab, parseHex, rgb, srgb } from '@thi.ng/color';
-import { okLabGradient, setFillColor, unpackRgb } from '../lib/color';
+import { okLabGradient, setBackground, setFillColor } from '../lib/color';
 import { getGrid } from '../lib/surfaces';
 import { fmap } from '../lib/transformations/base';
-import { drawBlurred } from '../shape';
 import { createNoise2D } from 'simplex-noise';
 
 const pixelFn = () => {
@@ -10,21 +9,31 @@ const pixelFn = () => {
   let d = pixelDensity();
   console.log('pixel density', d);
   console.log(pixels);
+  pixels[10] = 0;
+  pixels[11] = 255;
+  pixels[12] = 0;
 
   updatePixels();
 };
 
 const sketch06 = async (state) => {
+  const canvas = document.getElementById('defaultCanvas0');
+  canvas.style.imageRendering = 'pixelated';
+
   const a = Math.round(Math.random() * 1e5);
 
   const grid = getGrid(600, 100);
+
   const gradientGrid = getGrid(1, 1);
 
   const gradient = okLabGradient(
     srgb(parseHex('#1045F5')),
     srgb(parseHex('#20893C'))
-    // srgb(parseHex('#20893C'))
   );
+
+  const colorStrip = getGrid(100, 1);
+
+  // const font = await loadFont('PicNic.otf');
 
   // frameRate(25);
 
@@ -36,17 +45,14 @@ const sketch06 = async (state) => {
   const gridSpace = 600;
   return (state) => {
     console.log('draw');
-    background(255);
+    setBackground(srgb(parseHex('#E7EBE2')));
 
     fmap(gradientGrid, ([gu, gv]) => {
       fmap(grid, ([u, v]) => {
         fill(0);
-        // const color = gradient(
-        //   -0.5 +
-        //     (u + v) +
-        //     0.4 * noise(gu * 100 + state.time / 1000, gv * 100 + v * 4)
-        // );
-        const col = gradient(Math.floor(u * 10) / 10);
+
+        const col = gradient(noise(u * 150, v * 2) * 5);
+        // const col = gradient(Math.floor(u * 10) / 10);
         // setFillColor(srgb(parseHex('#20893C')));
         setFillColor(col);
         rect(
@@ -64,9 +70,20 @@ const sketch06 = async (state) => {
       });
     });
 
+    fmap(colorStrip, ([u, v]) => {
+      const col = gradient(noise(u * 150, v * 2) * 5);
+
+      setFillColor(col);
+      rect(50 + u * 200, 20 + 2, 10);
+    });
+
     fill(0);
     textSize(30);
-    text('as', 100, 100);
+
+    textStyle('bold');
+
+    // text('FOO BAR BAZ', 400, 900);
+    pixelFn();
     frameRate(0);
   };
 };
